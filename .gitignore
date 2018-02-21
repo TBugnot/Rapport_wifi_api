@@ -1,4 +1,7 @@
 Rapport.out
 Rapport.toc
-Rapport.log
+*.log
 Rapport.aux
+Rapport.bbl
+Rapport.blg
+*.backup

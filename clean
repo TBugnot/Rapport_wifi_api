@@ -1,0 +1,8 @@
+rm Rapport.aux
+rm Rapport.bbl
+rm Rapport.blg
+rm Rapport.log
+rm Rapport.out
+rm Rapport.pdf
+rm Rapport.toc
+rm Rapport.dvi
