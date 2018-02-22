@@ -1,5 +1,25 @@
 \chapter{Réseaux sans fils sous Linux}
 \section{Gestion du réseau sous Linux}
- (netlink, etc...)
+
+Une grosse partie du projet consiste à pouvoir communiquer avec les interfaces sans fils dont dispose les appareils. En effet,
+il est nécessaire d'une part, de récupérer des informations à propos de ces derniéres et d'autre part, de les configurer pour
+arriver à les utiliser de la maniére que nous le souhaitons. Historiquement, sous linux, la communication avec les interfaces
+se faisait avec des appels systémes ioctl\footnote{Abréviation de Input Output ConTroL, il s'agit d'une fonction permettant 
+de manipuler des fichiers spéciaux}. Des outils permettant de manipuler les interfaces en utilisant cette méthode sont depuis 
+longtemps fournis avec les distribution linux. C'est le cas par exemple du package net-tools, incluant le programme ifconfig,
+et permettant de manipuler les interfaces (état, informations d'adressages) ou de wireless-tools, incluant le programme iwconfig,
+permettant de mainpuler plus précisément les interfaces sans fils.
+
+Cependant, depuis 2007, il existe un autre moyen de manipuler les interfaces. En effet, se développe \textbf{netlink}, une
+famille de socket ayant pour but de fare communiquer les processus entre eux. Cela permet, entre autre, de faire communiquer
+un processus utilisateur avec un processus du noyeau linux. La librairie libnl implémente les pré-requis fondamentaux pour 
+utiliser le protocole netlink. Cependant, celle ci se veux minimaliste. C'est pourquoi elle est complété par 3 API : libnl-route,
+libnl-genl et libnl-nf\cite{NLlibs}. Des outils de configuration d'interfaces utilisent ces nouveaux moyens. C'est la cas de 
+la suite d'outil iproute pour controles les interfaces et de iw pour controler plus précisément les interfaces sans fils. Nous 
+utiliserons netlink dans notre code.
+
+L'API que nous utiliserons principalement pour gérer les interfaces est libnl-genl. Celle ci permet, grace à nl80211, un
+en-tête netlink, d'envoyer des messages permettant de contrôler les interfaces wifi. 
+
 \section{Création de réseaux 802.11s}
 \section{Détection de réseaux existants et sélection de canal}

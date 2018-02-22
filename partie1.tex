@@ -1,11 +1,6 @@
 \chapter{Objectifs, definitions, contraintes}
 \section{Introduction aux réseaux wifi}
 
-\begin{figure}
-   \centering
-   \includegraphics[width=0.8\textwidth,natwidth=488,natheight=513]{images/diffwifi.jpg}
-   \caption{Différences entre les normes wifi IEEE 802.11}
-\end{figure}
 Le wifi, abréviation de wireless fidelity, est un ensemble de protocoles permettant la communication sans fil entre deux
 appareils en utilisant des ondes radios. Ces protocoles se situent au niveau de la couche d'accés du modéle tcp/ip.
 La standardisation de cette norme à été initié l'IEEE\footnote{Institute of Electrical and Electronics Engineers} en 1990.
@@ -14,11 +9,11 @@ La norme d'origine prévoyait l'utilisation d'ondes radios dans la bande de fré
 courrament appelée bande à 2,4 GHz, ou d'infra rouges. Cependant, pour suivre l'évolution des technologies, le standart IEEE 
 802.11 s'est enrichi afin d'augmenter le débit et d'utiliser la bande de fréqences libre entre 5170 et 5710 MHz.
 Les standarts IEEE 802.11a et IEEE 802.11b à donc été définit en 1999, le standart 802.11g et 2003 et le standart 802.11n
-en 2009. La figure 1.1 montre les principales différences entre ces normes wifi.\cite{WFevol}
+en 2009.
 
 Depuis sa création, la norme IEEE 802.11 définit 14 cannaux dans la bande 2,4 GHz. Chaque canal à une largeur de 22 MHz et 
 l'écart entre les centres de deux canaux successifs est de 5 MHz\footnote{Sauf les centres des cannaux 13 et 14 qui sont espacé
-de 12 MHz}. Il en résulte donc un fort recouvrement entre les différents cannaux comme le montre la figure 1.2.
+de 12 MHz}. Il en résulte donc un fort recouvrement entre les différents cannaux comme le montre la figure 1.1.
 
 \begin{figure}
    \centering
@@ -38,7 +33,7 @@ cablé à un ou plusieurs autres points d'accés, étendant ainsi le LAN\footnot
 Le mode ad-hoc, au contraire, est un mode ``d'égal à égal''. Deux entités au sein du même BSS peuvent communiquer directement.
 
 
-Comme le montre la figure 1.3\cite{WFhead}, le premier champ de l'en tête wifi est le FCF\footnote{Frame Control Field, ou Champ
+Comme le montre la figure 1.2\cite{WFhead}, le premier champ de l'en tête wifi est le FCF\footnote{Frame Control Field, ou Champ
 de contrôle de trame}, permettant d'identifier les trames en fonction de leur rôle. Ainsi, les trames peuvent être de trois types,
 identifiées par les deux bits en position 3 et 4 du FCF : Management, Contrôle ou Donées.\cite{WFfcf}. Les 4 bits suivants
 identifient le sous type, et les 8 derniers bits sont des flags. Les trames de données sont utilisé pour transporter des données
@@ -63,7 +58,7 @@ environnement ouverts.
 
 C'est ce qui fait la force du mode ad-hoc. Chaque appareil peut communiquer avec tous les autres appareils qui sont à portée.
 De plus, chaque appareil peut relayer le message si le destinataire final n'est pas à portée. Ainsi, si l'on prends l'exemple
-la figure 1.4, chaque noeud peut communiquer avec nimporte quel autre, à la condition qu'un alogrithme de routage s'execute
+la figure 1.3, chaque noeud peut communiquer avec nimporte quel autre, à la condition qu'un alogrithme de routage s'execute
 sur le réseau et que chaque noeud sache quel est le suivant pour atteindre la destination. Ce genre de réseau est appelé réseau
 maillé\footnote{Mesh Network en anglais}. Le gros avantage de ces réseaux est qu'ils sont trés flexible. On peut les étendre sans
 avoir à tirer de nouveaux cables ou a ajouter de nouveaux equipements intermédiaires\cite{MNintro}. A l'inverse, leretrais d'un
@@ -79,7 +74,7 @@ Le standart 802.11s est un amendement de la norme 802.11, définissant la manié
 sans fils peuvent s'interconnecter pour former un réseau sans fil maillé. L'IEEE a commencé a travailler sur ce standart en 
 2003 et celui-ci à été adopté en 2006. Pour faciliter l'interopérabilité, un réseau 802.11s est vu de l'extérieur comme un
 unique segment ethernet. Pour permettre la retransmission des informations d'un noeud à l'autre, la norme 802.11s
-étends l'en tête 802.11 classique avec un en tête mesh comme montré dans la figure 1.5\cite{MNfunc}.
+étends l'en tête 802.11 classique avec un en tête mesh comme montré dans la figure 1.4\cite{MNfunc}.
 
 Les 4 champs d'adresses de l'en tête 802.11 sont utilisées, puisqu'il faut à chaque transmission du message donner l'adresse
 du noeud qui à effectué la transmission, du prochain noeud, du destinataire final et de l'expéditeur originel. Dans certains cas
@@ -116,16 +111,7 @@ avantages à l'utilisation d'une infrastructure décentralisé tel qu'un un rés
 
 Dans un réseau maillée, il est aussi nécessaire de prévoire le routage des trames. La norme 802.11s définit également le protocole
 HWMP\footnote{Hybrid Wireless Mesh Protocol} comme protocole de routage pour les réseaux wifi maillées. Contrairement à la majorité 
-des protocoles de routages, HWMP ne se base pas sur les adresses IP, mais sur les adresses MAc, puisque le but est d'aiguiller
+des protocoles de routages, HWMP ne se base pas sur les adresses IP, mais sur les adresses MAC, puisque le but est d'aiguiller
 les trames au sein d'un même LAN. Il s'agit d'un protocole de routage à vecteur distance puisque les noeuds n'ont pas conaissance
-de l'intégralité de la topologie du réseau mais uniquement des noueds qui le constituent et de la ``distance'' de chacun d'eux.
-Plus précisément, le protocole HWMP dispose de deux modes de fonctionnement : ``on demand'' et ``proactive tree building''. Le
-second nécessite qu'un noued soit désigné comme noued racine\cite{MNroute}.
-
-Avec le mode ``on demand'', cahque fois qu'un noeud à besoin de conaitre le chemin vers un autre noeud, il envoie une paquet
-``route request (RREQ)'' en broadcast, en identifiant le noeud de destination. Le paquet RREQ contient aussi un champ métrique
-initialisé à 0. Chaque noeud intermédiaire va recevoir le paquet RREQ, eventuellementen plusieurs exemplaire. Si le paquet RREQ
-à une métrique plus faible que celle déja connue, le noeud intermédiaire met a jour sa table de routage et le retransmet aprés avoir 
-augmenté la metrique. Lorsque le paquet attein le noued de destination, ce dernier répond avec un paquet ``Route Reply (RREP)''
-en unicast vers la source. Ainsi, tous les noeuds entre la destination et la source conaissent une route vers ces deux points
+de l'intégralité de la topologie du réseau mais uniquement des noueds qui le constituent et de la ``distance'' de chacun d'eux
 \cite{MNroute}.

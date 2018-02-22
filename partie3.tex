@@ -1,3 +1,14 @@
 \chapter{Adressage et routage}
 \section{Adressage dans un réseau maillé}
 \section{Routage}
+%A revoir
+Plus précisément, le protocole HWMP dispose de deux modes de fonctionnement : ``on demand'' et ``proactive tree building''. Le
+second nécessite qu'un noued soit désigné comme noued racine\cite{MNroute}.
+
+Avec le mode ``on demand'', cahque fois qu'un noeud à besoin de conaitre le chemin vers un autre noeud, il envoie une paquet
+``route request (RREQ)'' en broadcast, en identifiant le noeud de destination. Le paquet RREQ contient aussi un champ métrique
+initialisé à 0. Chaque noeud intermédiaire va recevoir le paquet RREQ, eventuellementen plusieurs exemplaire. Si le paquet RREQ
+à une métrique plus faible que celle déja connue, le noeud intermédiaire met a jour sa table de routage et le retransmet aprés avoir 
+augmenté la metrique. Lorsque le paquet attein le noued de destination, ce dernier répond avec un paquet ``Route Reply (RREP)''
+en unicast vers la source. Ainsi, tous les noeuds entre la destination et la source conaissent une route vers ces deux points
+\cite{MNroute}.
