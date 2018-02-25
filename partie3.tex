@@ -1,14 +1,51 @@
 \chapter{Adressage et routage}
 \section{Adressage dans un réseau maillé}
-\section{Routage}
-%A revoir
-Plus précisément, le protocole HWMP dispose de deux modes de fonctionnement : ``on demand'' et ``proactive tree building''. Le
-second nécessite qu'un noued soit désigné comme noued racine\cite{MNroute}.
 
-Avec le mode ``on demand'', cahque fois qu'un noeud à besoin de conaitre le chemin vers un autre noeud, il envoie une paquet
+Dans la partie 3 du chapitre 1, nous avons évoqué la nécessité de donner aux interfaces des adresses IP. Sans elles, il est
+impossible de leur faire transmettre des paquets de données. Nous évoquions également le protocole DHCP, qui est le protocole le plus
+courrament utilisé pour affecteur dynamiquement des adresses IP aux machines qui constituent le réseau. Puisque celui ci nécessite un
+serveur dédié, il n'est pas adapté à une architecture décentralisé comme un réseau wifi mesh.
+
+Cependant, il existe de nombreuses solutions plus adapté à nos besoins. Ces solutions sont regroupé sous l'appelation zeroconf
+\footnote{Ou Zero-configuration networking}. Elles permettent de créer un réseau IP sans avoir recours à un serveur.
+Les principales fonctionnalitées de ces solutions sont l'affectation d'adresses IP sans serveur DHCP et la résolution de nom de 
+domaine sans serveur DNS. Seule la premiére nous interesse dans le cadre de ce projet.
+
+La solution qui à été retenue dans le cadre de ce projet est ``IPv4 link-local autoconfiguration specification''\footnote{Abrégé en
+IPv4LL} définie par l'IETF\cite{ipv4ll}. IPv4LL permet aux clients de choisir une adresse IP dans la plage d'adresse 169.254.0.0/16.
+Cette plage est réservé auprés de l'IANA\footnote{Internet Assigned Numbers Authority} pour l'adressage local. Le principe de IPv4LL
+est de choisir une adresse IP aléatoirement dans la plage réservé, puis d'envoyer une requette ARP sur cette même adresse pour savoir
+si elle est déja utilisé par un autre noeud. En l'absence de réponse, l'adresse IP peut être utilisé. Sinon, il faut en choisir une
+et envoyer à nouveau une requette ARP.
+
+Avahi est un programme fournis avec la pluspart des distributions linux premettant, entre autre, d'afecter des adresses IP aux
+interfaces en utilisant IPv4LL. Il peut être lancé sous la forme d'un ``deamon''\footnote{Un processus ou ensemble de processus
+s'executant en arriére plan}, en lui précisant l'interface à laquelle il doit affecter une adresse IP. Durant son execution, il
+affecte une adresse ip à l'interface en vérifiant que celle ci est libre, puis répond au requettes si une autreinstance de avahi
+tournant sur une autre machine demande à utiliser la même adresse. Nous avons donc choisi, dans le cadre de ce projet, de lancer
+avahi, via un appel à la fonction system, afin d'affecter des adresses IP aux interfaces. Au besoin, l'option -k permet d'arrêter
+les instances d'avahi tournant sur une interface.
+
+\section{Routage}
+
+Dans le chapitre 1, partie 3, nous précisions aussi qu'il faut permettre de relayer les trames dans un réseau maillée. La norme
+802.11s définit un protocole de routage, le protocole HWMP. Celui-ci est un protocole à vecteur distance, ce qui signifie que les
+noeuds n'ont pas conaissance de l'intégralité de la topologie.La ``table des chemins\footnote{Puisqu'on se situe au niveau de la 
+couche d'accés du modéle TCP/IP, on parle plus souvent de chemins (path) que de routes (route)}'' contient, pour chaque destination,
+deux destinations essentielles : Le prochain saut et la distance de la destination.
+
+Plus précisément, le protocole HWMP dispose de deux modes de fonctionnement : ``on demand'' et ``proactive tree building''. Le
+second nécessite qu'un noeud soit désigné comme noued racine\cite{MNroute}.
+
+Avec le mode ``on demand'', chaque fois qu'un noeud à besoin de conaitre le chemin vers un autre noeud, il envoie une paquet
 ``route request (RREQ)'' en broadcast, en identifiant le noeud de destination. Le paquet RREQ contient aussi un champ métrique
 initialisé à 0. Chaque noeud intermédiaire va recevoir le paquet RREQ, eventuellementen plusieurs exemplaire. Si le paquet RREQ
 à une métrique plus faible que celle déja connue, le noeud intermédiaire met a jour sa table de routage et le retransmet aprés avoir 
 augmenté la metrique. Lorsque le paquet attein le noued de destination, ce dernier répond avec un paquet ``Route Reply (RREP)''
-en unicast vers la source. Ainsi, tous les noeuds entre la destination et la source conaissent une route vers ces deux points
-\cite{MNroute}.
+en unicast vers la source. Ainsi, tous les noeuds entre la destination et la source conaissent une route vers ces deux points.
+
+Cet algorithme est contenu et executé par le noyeau linux. Cependant, il n'est pas le seul à exister pour trouver des chemins dans 
+les réseaux maillées. D'autres algorithmes propriétaires lui ont précédés. C'est pourquoi nous avons ajouter dans le projet la
+possibilité d'ajouter ou de supprimer des entrées dans la table des chemins, en précisant la destination et le prochain saut. De plus,
+est important de pouvoir récupérer cette table des chemins car elle contient les adresses MAC de toutes les machines connues du 
+réseau. C'est donc un bon moyen d'avoir un apparcu de tous les noeuds qui le constitue.
