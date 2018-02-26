@@ -26,26 +26,42 @@ utiliserons netlink dans notre code.
 
 L'API que nous utiliserons principalement pour gérer les interfaces est libnl-genl. Celle-ci permet, grâce à nl80211, un
 en-tête netlink, d'envoyer des messages permettant de contrôler les interfaces wifi. Les commandes suceptibles d'être envoyées
-sont définies dans l'énumération nl80211\_commands dans le fichier nl80211.h. En créant des messages netlink avec ces commandes,
-il nous est possible, entre autre, de récupérer les informations sur les cartes réseaux connectées (NL80211\_CMD\_GET\_WIPHY),
-sur les différentes interfaces (NL80211\_CMD\_GET\_INTERFACE), de choisir la fréquence d'émission et de réception de la
-carte réseau (NL80211\_CMD\_SET\_WIPHY), de créer une interface sur une carte réseau (NL80211\_CMD\_NEW\_INTERFACE) ou de 
-changer le type d'une interface (NL80211\_CMD\_SET\_INTERFACE)
+sont définies dans l'énumération nl80211\_\-commands dans le fichier nl80211.h. En créant des messages netlink avec ces commandes,
+il nous est possible, entre autre, de récupérer les informations sur les cartes réseaux connectées (NL80211\_\-CMD\_\-GET\_\-WIPHY),
+sur les différentes interfaces (NL80211\_\-CMD\_\-GET\_\-INTERFACE), de choisir la fréquence d'émission et de réception de la
+carte réseau (NL80211\_\-CMD\_\-SET\_\-WIPHY), de créer une interface sur une carte réseau (NL80211\_\-CMD\_\-NEW\_\-INTERFACE) ou de 
+changer le type d'une interface (NL80211\_\-CMD\_\-SET\_\-INTERFACE)
 
 
 Les commandes transmisent dans un message netlink peuvent avoir besoin d'un ou plusieurs attributs. La liste de tous les 
-attributs existants dans le cadre de la gestion des interfaces sans fils est définit dans l'énumération nl80211\_attrs dans
+attributs existants dans le cadre de la gestion des interfaces sans fils est définit dans l'énumération nl80211\_\-attrs dans
 le fichier nl80211.h.
 
 L'API libnl-genl dispose déjà de fonction permettant de créer des socket netlink, des messages netlink, d'y ajouter des attributs
 et de l'envoyer sur le socket. Selon la commande donnée, le noyeau peut répondre en renvoyant un ou plusieurs messages
-netlink contenant des informations. C'est le cas, par exemple, lors de l'utilisation de la commande NL80211\_CMD\_GET\_INTERFACE.
+netlink contenant des informations. C'est le cas, par exemple, lors de l'utilisation de la commande NL80211\_\-CMD\_\-GET\_\-INTERFACE.
 Le message renvoyé contiendra alors les informations sur les interfaces. Il est alors nécessaire d'analyser le message pour 
 en extraire les informations souhaitées. Dans tous les cas, le dernier message renvoyé par le noyeau sera un message
 d'acquitement ou, en cas de problème, un message d'erreur. Aprés avoir envoyé un message netlink, il est donc nécessaire
 d'écouter sur le socket jusqu'à la réception d'un de ces deux messages.
 
 \section{Création de réseaux 802.11s}
+
+Comme précisé precédament, un réseau wifi mesh est un réseau ad hoc. En créer un ne nécessite aucune infrastructure particuliére. 
+Pour en créer un, il suffit qu'au moins deux noeuds se détectent mutuellement comme faisant partit du même réseau. Le noyeau linux 
+contient déja les composantes logiciel nécessaire à la création et au maintient d'un tel réseau. Il est nécessaire à l'utilisateur de
+paramétrer deux choses : le nom du réseau (MeshID) et la fréquence\cite{MNcreate}. Ainsi, en l'absence de sécurités, deux appareils
+suffisament proches disposant chacun d'une interface réglée en mode mesh sur la même fréquence et avec la même meshID pourrons
+communiquer via un réseau mesh qui se sera créé. Néamoins, ce genre de réseau mesh est ``publique'' dans le sens ou tout le monde
+peut le rejoindre. De plus, les trames sont envoyées sans être chiffrées et tus les noeuds intermédiaires peuvent les voir et 
+éventuellement les modifier. Il exeste des moyens de sécuriser le réseau, mais il ne serons pas abordées ici.
+
+Du point de vue utilisateur, créer ou rejondre  un réseau mesh nécessite donc 3 choses : régler une interface sans fil en mode mesh
+point, régler sa fréquence de fonctionnement et lui donner un MeshID. Ces trois fonctionnalité doivent donc faire partie de celles que
+nous allons coder dans notre projet. L'API libnl-genl nous offre un moyen, via les messages netlink envoyé au noyeau, de les réaliser.
+En effet, un message netlink contenant la commande NL80211\_\-CMD\_\-SET\_\-INTERFACE permet de changer le type d'une interface ou de lui 
+donner un MeshID. L'utilisation de la commande NL80211\_\-CMD\_\-SET\_\-WIPHY permet quand à elle de changer la fréquence de fonctionnement
+de la carte réseau, et donc de choisir le canal d'émission et de réception.
 
 \section{Détection de réseaux existants et sélection de canal}
 
@@ -78,7 +94,7 @@ longueur de cette information est de 01 octet et l'information est 01Ce point d'
 fréquence 1412\footnote{voir figure 1.1}.
 
 Encore une fois, l'API libnl-genl nous fournit les outils pour demander au noyeau linux de faire un scan, via les commandes
-NL80211\_CMD\_GET\_SCAN et NL80211\_CMD\_TRIGGER\_SCAN à envoyer dans un message netlink. Cela nous permet de récupérer toutes les
+NL80211\_\-CMD\_\-GET\_\-SCAN et NL80211\_\-CMD\_\-TRIGGER\_\-SCAN à envoyer dans un message netlink. Cela nous permet de récupérer toutes les
 informations sur les différents réseaux contenues dans les beacon frames. Cependant, une phase de tests a montré
 empiriquement que ce scan ne détectait pas toujours tous les réseaux wifi mesh. Nous avons donc pris la décision, dans le but
 d'avoir les résultats les plus complets possibles, d'implémenter notre propre scanner pour exploiter nous-mêmes les beacon frames.
