@@ -1,33 +1,33 @@
-\chapter{Objectifs, definitions, contraintes}
+\chapter{Objectifs, définitions, contraintes}
 \section{Introduction aux réseaux wifi}
 
 Le wifi, abréviation de wireless fidelity, est un ensemble de protocoles permettant la communication sans fil entre deux
-appareils en utilisant des ondes radios. Ces protocoles se situent au niveau de la couche d'accés du modéle tcp/ip.
+appareils en utilisant des ondes radios. Ces protocoles se situent au niveau de la couche d'accés du modèle tcp/ip.
 La standardisation de cette norme a été initiée l'IEEE\footnote{Institute of Electrical and Electronics Engineers} en 1990.
-Cela à aboutit, en 1997, au standart IEEE 802.11 définissant les réseaux locaux sans fils \cite{WFintro}.
-La norme d'origine prévoyait l'utilisation d'ondes radios dans la bande de fréquences libre entre 2401 et 2495 MHz\cite{WFband},
-courrament appelée bande à 2,4 GHz, ou d'infra rouges. Cependant, pour suivre l'évolution des technologies, le standart IEEE 
+Cela a aboutit, en 1997, au standart IEEE 802.11 définissant les réseaux locaux sans fils \cite{WFintro}.
+La norme d'origine prévoyait l'utilisation d'ondes radios dans la bande de fréquences libre entre 2401 et 2495 MHz,
+couramment appelée bande à 2,4 GHz, ou d'infra rouges. Cependant, pour suivre l'évolution des technologies, le standart IEEE 
 802.11 s'est enrichi afin d'augmenter le débit et d'utiliser la bande de fréqences libre entre 5170 et 5710 MHz.
 Les standarts IEEE 802.11a et IEEE 802.11b ont donc été définis en 1999, le standart 802.11g et 2003 et le standart 802.11n
 en 2009.
 
-Depuis sa création, la norme IEEE 802.11 définit 14 cannaux dans la bande 2,4 GHz. Chaque canal à une largeur de 22 MHz et 
+Depuis sa création, la norme IEEE 802.11 définit 14 canaux dans la bande 2,4 GHz. Chaque canal à une largeur de 22 MHz et 
 l'écart entre les centres de deux canaux successifs est de 5 MHz\footnote{Sauf les centres des cannaux 13 et 14 qui sont espacés
-de 12 MHz}. Il en résulte donc un fort recouvrement entre les différents cannaux comme le montre la figure 1.1.
+de 12 MHz}. Il en résulte donc un fort recouvrement entre les différents canaux comme le montre la figure 1.1.
 
 \begin{figure}
    \centering
    \includegraphics[width=0.8\textwidth,natwidth=610,natheight=642]{images/cannaux.png}
-   \caption{Répartition des cannaux dans la bande 2,4 GHz}
+   \caption{Répartition des canaux dans la bande 2,4 GHz}
 \end{figure}
 
 Un réseau wifi est un réseau local découpé en ``cellules'' appelées BSS\footnote{Basic Service Set}. Deux appareils
 doivent se trouver dans le même BSS pour communiquer entre eux. Il existe deux modes de BSS : Le mode Infrastructure et le
-mode ad-hoc\cite{WFfunc2}. La pluspart des réseaux wifi de particuliers ou d'entreprises sont des réseaux en mode Infrastructure.
+mode ad-hoc\cite{WFfunc2}. La plupart des réseaux wifi de particuliers ou d'entreprises sont des réseaux en mode Infrastructure.
 
 Le mode infrastructure est une topologie centralisée. Il se caractérise par le fait que chaque BSS posséde une station de
 base, appelée aussi point d'accés, et que toutes les communications passent nécessairement par le point d'accés de la BSS,
-et ce même si l'émeteur et le récepteur du message se trouvent dans le même BSS. Un point d'accés peut être relié par un réseau
+et ce même si l'émetteur et le récepteur du message se trouvent dans le même BSS. Un point d'accés peut être relié par un réseau
 cablé à un ou plusieurs autres points d'accés, étendant ainsi le LAN\footnote{Local Area Network, ou Réseau local}
 \cite{WFfunc},ou à un routeur pour accéder à un réseau WAN\footnote{Wide Area Network, ou Réseau étendu}.
 Le mode ad-hoc, au contraire, est un mode ``d'égal à égal''. Deux entités au sein du même BSS peuvent communiquer directement.
@@ -40,9 +40,9 @@ identifient le sous type, et les 8 derniers bits sont des flags. Les trames de d
 de plus haut niveau, les trames de contrôles sont utilisées pour les acquittements et les réservations, et les trames de management
 servent à organiser et maintenir le réseau\cite{MNfunc}.
 
-Les Beacons frames sont des trames de management particuliéres qui permettent à un point d'accés de déclarer sa présence aux
+Les Beacons frames sont des trames de management particulières qui permettent à un point d'accés de déclarer sa présence aux
 appareils à proximité. Ils transportent différentes informations comme le SSID\footnote{Service Set IDentifier} du réseau,
-qui est une chaîne de 2 à 32 caractéres, un timestamp permettant de se synchroniser, le canal sur lequel il émet, 
+qui est une chaîne de 2 à 32 caractères, un timestamp permettant de se synchroniser, le canal sur lequel il émet, 
 et d'autres informations.\cite{WFfunc2}.
 \begin{figure}
    \centering
@@ -58,7 +58,7 @@ environnements ouverts.
 
 C'est ce qui fait la force du mode ad-hoc. Chaque appareil peut communiquer avec tous les autres appareils qui sont à portée.
 De plus, chaque appareil peut relayer le message si le destinataire final n'est pas à portée. Ainsi, dans l'exemple de
-la figure 1.3, chaque noeud peut communiquer avec nimporte quel autre, à la condition qu'un alogrithme de routage s'execute
+la figure 1.3, chaque noeud peut communiquer avec nimporte quel autre, à la condition qu'un alogrithme de routage s'exécute
 sur le réseau et que chaque noeud sache quel est le suivant pour atteindre la destination. Ce genre de réseau est appelé réseau
 maillé\footnote{Mesh Network en anglais}. Le principal avantage de ces réseaux est qu'ils sont trés flexibles. On peut les étendre
 sans avoir à tirer de nouveaux cables ou à ajouter de nouveaux équipements intermédiaires\cite{MNintro}. De plus, le retrait d'un
@@ -79,7 +79,7 @@ unique segment ethernet. Pour permettre la retransmission des informations d'un 
 Les 4 champs d'adresses de l'en-tête 802.11 sont utilisés, puisqu'il faut à chaque transmission du message donner l'adresse
 du noeud qui a effectué la transmission, celle du prochain noeud, celle du destinataire final et celle de l'expéditeur originel. 
 Dans certains cas plus complexes, il est nécessaire d'ajouter des adresses supplémentaires, ce qui explique que l'en-tête mesh
-comporte un champ optionel d'extention d'adresses. C'est le cas par exemple si l'émeteur et/ou le destinataire, ne se trouvent pas
+comporte un champ optionel d'extention d'adresses. C'est le cas par exemple si l'émetteur et/ou le destinataire, ne se trouvent pas
 dans le réseau mesh, mais que la trame va traverser un réseau mesh. Parmi les autres valeurs ajoutées, le TTL\footnote{Nombre de
 fois maximal que peut être relayée une trame avant d'être abandonnée, cette valeur est décrémentée à chaque saut} et le Mesh sequence
 number\footnote{nombre identifiant de manière unique une trame} permettent d'éviter les boucles infinies qui risqueraient de saturer

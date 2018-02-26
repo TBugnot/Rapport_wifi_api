@@ -1,6 +1,100 @@
 \chapter{Implémentation et architecture logicielle}
+\section{Architecture globale}
+
+Le but de ce projet est d'écrire en C un framework permettant de créer ou rejoindre facilement des réseaux mesh. Nous avons donc
+décider de plusieurs régles facilitant l'exploitation du code.
+
+Les fichiers .c contenant le code sont situés dans le dossier src. Pour chaque fichier .c, il existe un fichier .h de même nom dans
+le dossier include. Les prototypes des fonctions sont définis dans ce fichier .h. De plus, au dessus de chaque prototype, des 
+commentaires au format doxygen renseignent sur l'utilité et le fonctionnement de chaque fonction, détaillant les paramétres
+à donner et la valeur retournée par celle-ci. 
+
+Les fichiers interface.c, interface.h, network.c, network.h, mpath.c et mpath.h ont pour but de définir des structures 
+nécessaires ainsi que les fonctions permettant d'effectuer automatiquement les opérations de bases sur ces structures : allocation, 
+initialisation, affichage, libération mémoire et, lorsque les structures peuvent faire partie d'une liste, destruction de la liste.
+
+Les fichiers wifi.c, wifi.h, scan2.c, scan2.h, ip.c, ip.h, route.c et route.h définissent les fonctions répondant aux objectifs que
+nous nous sommes fixées. Ces fonctions utilisent les structures définies précédemment. Dans ces fichiers, la plupart des fonctions
+commencent par le préfixe wifi\_\-. Celles qui n'ont pas ce préfixe ont un usage interne et ne sont pas destinées à être appelées depuis
+l'extérieur. Certaines fonctions servent à modifier des paramètres du systéme, d'autres à obtenir des informations. Dans ce 
+second cas, le ou les premiers attributs sont des pointeurs indiquant une zone mémoire qui sera modifée pour y écrire les informations.
+Le type de retour est toujours un int, qui vaut 0 si l'exécution de la fonction s'est déroulée sans problème ou un nombre négatif
+si une erreur  s'est produite . Ce nombre correspond à un code d'erreur et il est possible d'en obtenir une description avec 
+la fonction wifi\_\-geterror.
+
 \section{Contrôle des interfaces sans fils}
 
+Pour créer un réseau wifi mesh ou scanner les réseaux wifi déjà existant, il faut pouvoir contrôler les interfaces sans fils. 
+Cependant, avant de contrôler les interfaces, il est nécessaire de récupérer les informations les concernant. Cela passe par 
+l'utilisation de l'API libnl-genl et l'envoi de messages netlink au noyeau.
+
+Comme précisé precédemment, il faut différencier les cartes réseaux physiques des interfaces ``logiques''. Nous avons donc décidé de 
+les représenter par deux structures différentes, respectivement wifi\_\-wiphy et wifi\_\-interface, décritent dans le fichier interface.h. 
+Les messages netlink envoyés par le noyeau nous donnent de nombreuses informations, mais nous avons choisi de ne retenir que celles
+qui seront utiles dans le cadre de ce projet. Ainsi, les cartes réseaux (wiphy) seront caractérisées par leur numéro, la liste des
+fréquences utilisables et la liste de types d'interfaces supportés. Les interfaces seront, quant à elles, représentées par leur nom,
+le numéro de la carte réseau associée, leur type, leur fréquence, la largeur du canal et leur adresse mac. On ajoute aussi à ces 
+structures une variable list\_\-head permettant de les lier dans une liste chaînée. Le fichier interface.c contient toutes les fonctions 
+permettant de manipuler simplement ces structures : Création, affichage, libération de mémoire...
+
+Les fonctions permettant l'envoi de messages netlink au noyeau et l'analyse des réponses sont écrites dans le fichier wifi.c. Celles-ci
+nécessitent l'utilisation d'un socket netlink. Pour éviter d'avoir à créer le socket à chaque appel d'une fonction, nous avons pris la
+décision de créer une structure, que nous avons appelée wifi\_\-nlstate, contenant une référence sur le socket ainsi qu'un identifiant
+qui est également nécessaire pour l'envoi de messages netlink. Cette structure est définie dans le fichier wifi.h. Nous avons aussi
+créé une fonction permettant d'initialiser cette structure. Ainsi, l'utilisateur doit  appeler une seule fois cette fonction 
+d'initialisation, puis fournir un pointeur sur la structure à chaque appel d'une autre fonction nécessitant d'envoyer un message
+netlink.
+
+La fonction send\_\-recv\_\-msg permet d'envoyer un message netlink et d'analyser la ou les réponses. Cette fonction prend en paramétre 
+un pointeur sur la structure wifi\_\-nlstate décrite dans le paragraphe précédent, la commande nl80211 à mettre dans le message
+netlink, les flags ainsi qu'une liste d'attributs à ajouter dans ce message, une réfèrence sur la fonction permettant d'analyser la 
+réponse et un argument à fournir à cette fonction. Plusieurs fonctions définies dans le fichier wifi.c utilisent cette fonction
+send\_\-recv\_\-msg. Le but et fonctionnement de chacune d'elle sont donnés en commentaire dans le fichier wifi.h. Elles permettent, 
+entre autre, de récupérer la
+liste des cartes réseaux (wifi\_\-get\_\-wiphy) et interfaces (wifi\_\-get\_\-interfaces), de limiter ces listes uniquement aux cartes réseaux 
+supportant un type particulier (wifi\_\-get\_\-wiphy\_\-supporting\_\-type) ou aux interfaces utilisant ces cartes réseaux
+(wifi\_\-get\_\-if\_\-supporting\_\-type). Il est également possible de changer le type (wifi\_\-change\_\-type) ou la fréquence de fonctionnement
+(wifi\_\-change\_\-frequency) d'une interface, de lui associer un MeshID (wifi\_\-set\_\-meshid) ou d'en créer une nouvelle 
+(wifi\_\-create\_\-interface). Seules les fonctions permettant d'allumer (wifi\_\-up\_\-interface) ou d'éteindre (wifi\_\-down\_\-interface) une 
+interface utilisent un appel système à la place d'un message netlink.
+
 \section{Scan des réseaux}
+
+De même que pour les interfaces, nous avons du créer des structures pour représenter les réseaux. Ces structures, wifi\_\-network et 
+wifi\_\-mesh\_\-network, permettant de représenter respectivement des réseaux wifi centralisés et maillés, sont définies dans le fichier
+network.h. Les beacons frames contiennent plusieurs informations. Dans le cadre des réseaux centralisés, puisque nous ne cherchons
+à les détecter que pour savoir quelle fréquence est la moins occupée, nous nous contenterons de les représenter par leur SSID et leur
+canal. Par contre, un réseau mesh sera représenté par son MeshID, son canal, ainsi que tous les paramètres mesh fournis dans la
+beacon frame. Ces deux structures contiennent aussi une variable list\_\-head leur permettant de faire partie d'une liste.
+Le fichier network.c contient les fonctions permettant de créer, d'initialiser, d'afficher de supprimer ces structures.
+
+Le fichier scan2.c définit les fonctions permettant d'effectuer un scan et de lister les réseaux existants. La fonction 
+wifi\_\-scan\_\-network effectue un scan pendant 3 secondes sur une interface en mode monitor. La fonction wifi\_\-scan\_\-all\_\-frequencies
+effectue le même scan mais sur toutes les fréquences de la bande à 2.4GHz. Le scan se fait en utilisant les fonctions de la 
+librairie pcap. Celle-ci n'utilise pas les codes d'erreur mais demande à ce que l'utilisateur fournisse un pointeur sur un tableau de
+caractères dans lequel sera écrit une description de l'erreur si besoin. Nous avons donc du reprendre ce principe pour les fonctions
+wifi\_\-scan\_\-network et wifi\_\-scan\_\-all\_\-frequencies.
+
 \section{Adressage IP}
+
+Les fonctions relatives à l'adressage IP sont définies dans le fichier ip.c. La fonction wifi\_\-start\_\-avahi permet de lancer un deamon
+avahi sur une interface. Il est possible de spécifier en paramètre quelle adresse IP avahi doit tenter de réserver en priorité. La 
+fonction wifi\_\-stop\_\-avahi permet au contraire d'arrêter le deamon avahi. La fonction wifi\_\-get\_\-ip\_\-address permet de récupérer l'adresse
+IP associée à une interface. Elle utilise l'API libnl-route pour envoyer des messages netlink et en analyser le résultat. Elle  le donne
+sous forme d'un tableau de 4 octets. La fonction print\_\-ip\_\-address permet d'afficher sous forme standart\footnote{quatre 
+nombres entre 0 et 255 séparés par un point} une adresse donnée par 4 octets en prenant en paramètre un pointeur sur le premier de ces
+octets.
+
 \section{Routage}
+
+Nous avons créé une structure permettant de représenter une entrée dans la table des chemins. Celle-ci est définie dans le fichier
+mpath.h. Chaque entrée contient donc une destination et un prochain saut, sous la forme d'une adresse mac au format 6 octets, et 
+une distance qui est un int. Pour représenter la table des chemins, il est nécessaire de pouvoir organiser ces entrées sous forme 
+d'une liste, c'est pourquoi nous avons ajouté à la structure une variable list\_\-head. Le fichier mpath.c contient donc les fonctions
+permettant de gérer cette structure.
+
+Le fichier route.c contient les fonctions permettant de récupérer et modifier la table des chemins. La fonction wifi\_\-add\_\-mesh\_\-path
+permet d'ajouter une entrée dans la table des chemins, wifi\_\-del\_\-mesh\_\-path d'en supprimer une, et wifi\_\-get\_\-mesh\_\-path permet de 
+récupérer la liste de toutes les entrées, et donc d'avoir en même temps l'adresse MAC de tous les noeuds constituant le réseau.
+Ces oppérations utilisent l'API libnl-genl, c'est pourquoi il est indispensable de donner à ces fonctions une référence sur une
+structure wifi\_\-nlstate initialisée, afin de pouvoir utiliser un socket netlink.
