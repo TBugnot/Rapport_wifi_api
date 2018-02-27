@@ -1,4 +1,20 @@
 \chapter*{Introduction}
 \addcontentsline{toc}{chapter}{\protect\numberline{}Introduction}
 
+La communication sans fil est un moyen de permettre à plusiuers appareils distincts d'échanger des données sans avoir à les relier
+entre eux. Elle utilise généralement des micro-ondes mêmes si il est possible de faire passer une information par d'autres bandes de
+fréquence comme les infra rouges. Le wifi, pour wireless fidelity, est un protocole de la couche d'accés de l'architecture TCP/IP
+couramment utilisé permettant à plusieurs appareils de communiquer via les micro-ondes. Il dispode de deux modes de fonctionnement : 
+Le mode centralisé, et le mode ad-hoc, que l'on appelle aussi mode mesh, ou maillé. Le premier est trés majoritairement utilisé. 
+Cependant, il posséde des limites, nottement la nécessité de disposer d'un point d'accés, rendant interssant l'utilisation du mode
+ad-hoc dans certaines conditions. En effet, avec le développement rapide des objets connectés, seul ce dernier permet à deux objets
+suffisament proches de communiquer sans avoir besoin d'appareils dédié à relayer les trames.
+
+Le mode mesh est standardisé par l'IEEE avec la norme IEEE 802.11s. Le but de ce projet est de créer un framework permettant de
+configurer simplement et automatiquement un réseau wifi mesh sur un systéme d'exploitation linux. Plus précisément, il devra proposer
+des fonctions pour détecter les cartes réseaux sans fils dont dispose la machine, détecter les réseaux wifi mesh déja existant,
+rejoindre un réseau mesh déja existant ou en créer un nouveau sur le canal le moins encombré, associer une adresse IP aux interfaces
+sans fils et trouver les chemins permettant d'acheminer les trames jusqu'à leur destination.
+
+
 
